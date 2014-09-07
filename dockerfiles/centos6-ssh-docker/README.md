@@ -1,4 +1,4 @@
-```
+```bash
 fdavis@localhost> docker run -d -i -t -P fdavis/centos6-ssh-docker #run w/default cmd
 437bc8a81721d83595f71dc1aec064b5c736d65e2a042d2215c41da68ec49d67
 fdavis@localhost> docker ps #get the port
