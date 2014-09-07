@@ -1,0 +1,33 @@
+---
+- hosts: all
+  user: root
+  vars:
+    password: $1$docker$aAVO46sVicePaMeuAKuyy0
+    yum_pkgs:
+        - openssh-server
+        - openssh-clients
+        - passwd
+        - sudo
+        - git 
+        - vim
+  tasks:
+    - yum: name="{{item}}" state=installed
+      with_items:
+        - "{{yum_pkgs}}"
+
+    - command: yum update -y
+
+    - name: user docker with password docker
+      user: name=docker password="{{password}}"
+
+    - name: add docker sudoers w/no passwd
+      copy: src=docker_sudoers dest=/etc/sudoers.d/docker
+
+    - name: add docker ssh key
+      authorized_key: user=docker state=present key="{{ lookup('file', 'docker.rsa.pub') }}"
+
+    - name: add ssh config for docker, no host check for localhost
+      copy: src=ssh_config dest=/home/docker/.ssh/config owner=docker group=docker mode=0600
+
+    - name: make sure ansible host key checking is disabled
+      lineinfile: dest=/etc/ansible/ansible.cfg regexp=".*host_key_checking = False$" line="host_key_checking = False"
