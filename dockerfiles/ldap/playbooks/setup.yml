@@ -1,0 +1,17 @@
+---
+- hosts: all
+  user: root
+  vars:
+    # more docker passwd
+    password: "{SSHA}7vY8sN96jJ+7nwGN5k0dRfo45es+s3op"
+    yum_pkgs:
+        - openldap
+        - openldap-clients
+        - 389-ds
+  tasks:
+    - yum: name="{{item}}" state=installed
+      with_items:
+        - "{{yum_pkgs}}"
+
+    - lineinefile: dst=/etc/openldap/slapd.d/cn\=config/olcDatabase\=\{2\}dbd.ldif regexp="olcRootPW: {SSHA}7vY8sN96jJ+7nwGN5k0dRfo45es+s3op" line="olcRootPW: {SSHA}7vY8sN96jJ+7nwGN5k0dRfo45es+s3op"
+
