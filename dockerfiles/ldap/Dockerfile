@@ -1,21 +1,18 @@
-# sshd
+# ldap
 #
 # VERSION 0.0.1
 
-FROM centos:centos6
+FROM fdavis/centos6-ssh-docker
 MAINTAINER Fletcher Davis reddot357@hotmail.com
 
 # update
 RUN yum update -y
 
-# install sshd and passwd
-RUN yum install -y openssh-server passwd sudo
+# install slapd
+RUN yum install -y slapd
 
-# setup docker:docker user
-RUN useradd docker
-RUN echo docker | passwd --stdin docker
-
-# give docker root
+:
+d give docker root
 RUN echo 'docker ALL=NOPASSWD: ALL' >> /etc/sudoers
 
 # need port 22
