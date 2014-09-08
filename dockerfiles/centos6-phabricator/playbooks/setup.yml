@@ -27,6 +27,8 @@
     - git: repo=https://github.com/phacility/{{ item }}.git dest={{ phab_root }}/{{ item }}
       with_items: phab_checkouts
 
+    - copy: src=my.cnf dest=/etc/my.cnf owner=root group=root mode=0644
+
     - name: kick off mysqld for init tasks
       service: name=mysqld state=started
 
@@ -43,6 +45,9 @@
 
     - name: install phab.conf for apache
       copy: src=phab.conf dest=/etc/httpd/conf.d/phab.conf owner=root group=root mode=0644
+
+    - name: setup /var/repo for phab
+      file: dest=/var/repo state=directory owner=apache group=apache mode=0755
 
     - name: install start.sh script to root (abstracts docker start command)
       copy: src=start.sh dest=/root/start.sh mode=0755 owner=root
