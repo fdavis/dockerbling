@@ -1,0 +1,48 @@
+---
+- hosts: all
+  user: root
+  vars:
+    phab_root: /opt/phab/
+    phab_checkouts:
+        - libphutil
+        - arcanist
+        - phabricator
+    yum_pkgs:
+        - httpd
+        - git
+        - php
+        - php-cli
+        - php-mysql
+        - php-process
+        - php-devel
+        - php-gd
+        - php-pecl-apc
+        - php-pecl-json
+        - php-mbstring
+        - mysql-server
+  tasks:
+    - yum: name="{{item}}" state=installed
+      with_items: yum_pkgs
+
+    - git: repo=https://github.com/phacility/{{ item }}.git dest={{ phab_root }}/{{ item }}
+      with_items: phab_checkouts
+
+    - name: kick off mysqld for init tasks
+      service: name=mysqld state=started
+
+    # need make phab's sql account follow principle of least priveledge...
+    - name: poor man's mysql_secure_install automation
+      shell: mysql -u root < /tmp/playbooks/setup.sql
+
+    - name: install local.json phab conf with sql credentials
+      copy: src=phab.conf.local.json dest=/opt/phab/phabricator/conf/local/local.json owner=root group=root mode=0644
+
+    # force skips warning that httpd/phd daemons should be off before sql upgrade
+    - name: run phab's storage upgrade
+      command: /opt/phab/phabricator/bin/storage upgrade --force
+
+    - name: install phab.conf for apache
+      copy: src=phab.conf dest=/etc/httpd/conf.d/phab.conf owner=root group=root mode=0644
+
+    - name: install start.sh script to root (abstracts docker start command)
+      copy: src=start.sh dest=/root/start.sh mode=0755 owner=root
