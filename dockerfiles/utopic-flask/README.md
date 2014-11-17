@@ -1,0 +1,3 @@
+eventually you should be able to add your python deps, and share your code with docker in order to serve the site immediately... 
+
+*eventually*
