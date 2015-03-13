@@ -1,0 +1,22 @@
+---
+- hosts: all
+  user: root
+  vars:
+    yum_pkgs:
+        - git
+        - vim
+        - make
+        - gcc
+        - nginx
+        - nc
+
+  tasks:
+    - yum: name="{{item}}" state=installed
+      with_items:
+        - "{{yum_pkgs}}"
+
+    - file: path=/src/termbin state=directory
+    - git: repo=https://github.com/solusipse/fiche.git dest=/src/termbin
+    - shell: chdir=/src/termbin make && make install
+    - copy: src=termbin.nginx.conf dest=/etc/nginx/conf.d/default.conf
+    - copy: src=entrypoint.sh dest=/root/entrypoint.sh
